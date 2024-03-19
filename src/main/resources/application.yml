@@ -25,4 +25,4 @@ spring:
         show_sql: true
 
 jwt:
-  secret-key: ${JWT_SECRET_KEY}
+  secret-Key: ${JWT_SECRET_KEY}
