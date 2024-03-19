@@ -1,8 +1,7 @@
 package com.example.jwt.domain.member.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.example.jwt.domain.member.entity.auth.Authority;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -24,6 +23,7 @@ public class Member {
     @Column(nullable = false)
     private String name;
 
-    private String test2;
+    @Enumerated(EnumType.STRING)
+    private Authority authority;
 
 }
