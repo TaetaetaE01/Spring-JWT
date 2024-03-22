@@ -1,7 +1,7 @@
 package com.example.jwt.global.common.config;
 
-import com.example.jwt.global.jwt.JwtFilter;
-import com.example.jwt.global.jwt.JwtService;
+import com.example.jwt.global.auth.jwt.JwtFilter;
+import com.example.jwt.global.auth.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtService jwtService;
+    private final JwtProvider jwtProvider;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -62,6 +62,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtFilter jwtFilter() {
-        return new JwtFilter(jwtService);
+        return new JwtFilter(jwtProvider);
     }
 }

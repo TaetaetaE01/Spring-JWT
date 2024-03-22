@@ -1,4 +1,4 @@
-package com.example.jwt.global.jwt;
+package com.example.jwt.global.auth.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 
 @RequiredArgsConstructor
@@ -90,11 +89,7 @@ public class JwtService {
      * 토큰 형식 : Bearer XXX에서 Bearer를 제외하고 순수 토큰만 가져오기 위해서
      * 헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
      */
-    public Optional<String> extractAccessToken(HttpServletRequest request) {
-        return Optional.ofNullable(request.getHeader(ACCESS_TOKEN_HEADER))
-                .filter(refreshToken -> refreshToken.startsWith(BEARER))
-                .map(refreshToken -> refreshToken.replace(BEARER, ""));
-    }
+
 
 
     public boolean isTokenValid(String token) {
