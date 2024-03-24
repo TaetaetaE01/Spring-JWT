@@ -25,6 +25,7 @@ public class MemberController {
 
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody MemberLoginRegister memberLoginRegister) {
+        memberService.login(memberLoginRegister);
         return ResponseEntity.ok().body("토큰임둥~~~");
     }
 }

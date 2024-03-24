@@ -39,13 +39,13 @@ public class JwtProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public TokenDto createAllToken(String email, List<String> roles) {
-        return new TokenDto(createToken(email, roles, "Access"), createToken(email, roles, "Refresh"));
+    public TokenDto createAllToken(String email, String role) {
+        return new TokenDto(createToken(email, role, "Access"), createToken(email, role, "Refresh"));
     }
 
-    public String createToken(String userEmail, List<String> roles, String type) {
-        Claims claims = Jwts.claims().setSubject(userEmail);
-        claims.put("roles", roles);
+    public String createToken(String email, String role, String type) {
+        Claims claims = Jwts.claims().setSubject(email);
+        claims.put("role", role);
         Date now = new Date();
         long expiration = type.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
 

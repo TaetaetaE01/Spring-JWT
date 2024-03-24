@@ -31,4 +31,8 @@ public class Member {
         this.password = passwordEncoder.encode(this.password);
     }
 
+    public boolean isPasswordValid(PasswordEncoder passwordEncoder, String password) {
+        return passwordEncoder.matches(password, this.password);
+    }
+
 }
