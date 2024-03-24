@@ -1,5 +1,6 @@
 package com.example.jwt.domain.member.controller;
 
+import com.example.jwt.domain.member.dto.request.MemberLoginRegister;
 import com.example.jwt.domain.member.dto.request.MemberRegisterRequest;
 import com.example.jwt.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +21,10 @@ public class MemberController {
     public ResponseEntity<String> register(@RequestBody MemberRegisterRequest memberRegisterRequest) {
         memberService.registerMember(memberRegisterRequest);
         return ResponseEntity.ok().body("성공적으로 회원등록이 완료되었습니다.");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody MemberLoginRegister memberLoginRegister) {
+        return ResponseEntity.ok().body("토큰임둥~~~");
     }
 }
