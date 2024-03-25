@@ -6,7 +6,6 @@ import com.example.jwt.domain.member.entity.Member;
 import com.example.jwt.domain.member.repository.MemberRepository;
 import com.example.jwt.global.auth.jwt.JwtProvider;
 import com.example.jwt.global.auth.jwt.TokenDto;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,20 +22,19 @@ public class MemberService {
 
     @Transactional
     public void registerMember(MemberRegisterRequest memberRegisterRequest) {
-        Member member = memberRepository.save(memberRegisterRequest.toEntity());
+        Member member = memberRepository.save(memberRegisterRequest.toMemberEntity());
         member.passwordEncode(passwordEncoder);
     }
 
     @Transactional
-    public TokenDto login(MemberLoginRegister memberLoginRegister) {
+    public String login(MemberLoginRegister memberLoginRegister) {
         Member member = findMemberByEmail(memberLoginRegister.getEmail());
 
         if (!member.isPasswordValid(passwordEncoder, memberLoginRegister.getPassword())) {
             throw new BadCredentialsException("비밀번호가 일치하지 않습니다");
         }
-
         TokenDto tokenDto = jwtProvider.createAllToken(member.getEmail(), member.getAuthority().name());
-        return tokenDto;
+        return tokenDto.getAccessToken();
     }
 
     @Transactional

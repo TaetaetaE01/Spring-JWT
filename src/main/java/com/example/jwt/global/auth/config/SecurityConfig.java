@@ -1,6 +1,6 @@
-package com.example.jwt.global.common.config;
+package com.example.jwt.global.auth.config;
 
-import com.example.jwt.global.auth.jwt.JwtFilter;
+import com.example.jwt.global.auth.jwt.filter.JwtFilter;
 import com.example.jwt.global.auth.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -35,6 +35,7 @@ public class SecurityConfig {
                                            HandlerMappingIntrospector introspector) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                //http basic 인증 방식 disable
                 .httpBasic(AbstractHttpConfigurer::disable)
 
                 // 세션 생성하지 않음

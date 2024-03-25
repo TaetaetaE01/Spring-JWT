@@ -39,36 +39,31 @@ public class JwtProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
+    // 토큰 생성 order -> dto에 바로 담음
     public TokenDto createAllToken(String email, String role) {
         return new TokenDto(createToken(email, role, "Access"), createToken(email, role, "Refresh"));
     }
 
+    // 토큰 생성 (access, refresh)
     public String createToken(String email, String role, String type) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
-        Date now = new Date();
+
         long expiration = type.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
+
+        Date now = new Date();
+        long nowTime = now.getTime();
+        Date validity = new Date(nowTime + expiration);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + expiration))
-                .signWith(SignatureAlgorithm.HS256, secretKey)
-                .compact();
-    }
-
-    public String createAccessToken(String email) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + ACCESS_TIME);
-
-        return Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
+                .setExpiration(validity)
                 .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
 
+    // 헤더에 있는 access 토큰 추출
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(ACCESS_TOKEN_HEADER))
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
@@ -84,10 +79,7 @@ public class JwtProvider {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
 
-    public String resolveToken(HttpServletRequest request) {
-        return request.getHeader("AUTH-KEY");
-    }
-
+    // 토큰 유효성(시간 만료) 검증
     public boolean validateToken(String jwtToken) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);

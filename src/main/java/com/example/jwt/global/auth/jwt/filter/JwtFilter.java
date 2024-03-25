@@ -1,5 +1,6 @@
-package com.example.jwt.global.auth.jwt;
+package com.example.jwt.global.auth.jwt.filter;
 
+import com.example.jwt.global.auth.jwt.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,9 +53,5 @@ public class JwtFilter extends OncePerRequestFilter {
         } else {
             log.info("유효한 JWT 토큰이 없습니다. requestURI : {}", request.getRequestURI());
         }
-
-
     }
-
-
 }

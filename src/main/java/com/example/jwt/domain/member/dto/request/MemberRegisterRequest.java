@@ -10,7 +10,7 @@ public class MemberRegisterRequest {
     private String password;
     private String name;
 
-    public Member toEntity() {
+    public Member toMemberEntity() {
         return Member.builder()
                 .email(email)
                 .password(password)
