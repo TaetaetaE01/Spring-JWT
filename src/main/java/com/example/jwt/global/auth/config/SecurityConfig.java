@@ -53,7 +53,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers(new MvcRequestMatcher(introspector, "/api/**")).permitAll()
+                                .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/member")).permitAll()
                                 .anyRequest().authenticated()) // 그 외는 접근x
 
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);

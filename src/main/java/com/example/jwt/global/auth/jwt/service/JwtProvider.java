@@ -47,24 +47,6 @@ public class JwtProvider {
         return new TokenDto(createToken(email, role, "Access"), createToken(email, role, "Refresh"));
     }
 
-    // 토큰 생성 (access, refresh)
-    public String createToken(String email, String role, String type) {
-        Claims claims = Jwts.claims().setSubject(email);
-        claims.put("role", role);
-
-        long expiration = type.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
-
-        Date now = new Date();
-        long nowTime = now.getTime();
-        Date validity = new Date(nowTime + expiration);
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(validity)
-                .signWith(SignatureAlgorithm.HS512, secretKey)
-                .compact();
-    }
 
     // 헤더에 있는 access 토큰 추출
     public Optional<String> extractAccessToken(HttpServletRequest request) {
@@ -105,5 +87,25 @@ public class JwtProvider {
     public Optional<RefreshToken> findByEmail(String email) {
         return refreshTokenRepository.findByEmail(email);
     }
+
+    // 토큰 생성 (access, refresh)
+    private String createToken(String email, String role, String type) {
+        Claims claims = Jwts.claims().setSubject(email);
+        claims.put("role", role);
+
+        long expiration = type.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
+
+        Date now = new Date();
+        long nowTime = now.getTime();
+        Date validity = new Date(nowTime + expiration);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(SignatureAlgorithm.HS512, secretKey)
+                .compact();
+    }
+
 
 }
