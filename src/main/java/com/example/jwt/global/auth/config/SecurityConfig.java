@@ -1,6 +1,6 @@
 package com.example.jwt.global.auth.config;
 
-import com.example.jwt.global.auth.jwt.filter.JwtFilter;
+import com.example.jwt.global.auth.jwt.filter.JwtAuthenticationFilter;
 import com.example.jwt.global.auth.jwt.service.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -46,7 +46,6 @@ public class SecurityConfig {
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
 
-
                 /**
                  * 아래 url은 인증 없이 접근 가능
                  */
@@ -54,6 +53,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
                                 .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/member")).permitAll()
+                                .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/member/login")).permitAll()
                                 .anyRequest().authenticated()) // 그 외는 접근x
 
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
@@ -62,7 +62,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtFilter jwtFilter() {
-        return new JwtFilter(jwtProvider);
+    public JwtAuthenticationFilter jwtFilter() {
+        return new JwtAuthenticationFilter(jwtProvider);
     }
 }

@@ -15,8 +15,9 @@ import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-public class JwtFilter extends OncePerRequestFilter {
-    public static final String NO_CHECK_URL_LOGIN = "/api/jwt/member";
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    public static final String NO_CHECK_URL_LOGIN = "/api/jwt/member/login";
+    public static final String NO_CHECK_URL_SIGN_UP = "/api/jwt/member";
 
     private final JwtProvider jwtProvider;
 
@@ -30,8 +31,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
         /**
          * 로그인 여부를 판단하지 않고 진입할 url
+         * 회원가입 && LOGIN
          */
-        if (request.getRequestURI().equals(NO_CHECK_URL_LOGIN)) {
+        if (request.getRequestURI().equals(NO_CHECK_URL_LOGIN) || request.getRequestURI().equals(NO_CHECK_URL_SIGN_UP)) {
             filterChain.doFilter(request, response);
             return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
         }
@@ -43,6 +45,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String jwtToken = jwtProvider.extractAccessToken(request)
                 .filter(jwtProvider::validateToken)
                 .orElse(null);
+
 
         if (jwtToken != null) {
             Authentication authentication = jwtProvider.getAuthentication(jwtToken);
