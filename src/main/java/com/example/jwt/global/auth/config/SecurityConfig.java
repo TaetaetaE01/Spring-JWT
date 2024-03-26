@@ -1,7 +1,7 @@
 package com.example.jwt.global.auth.config;
 
 import com.example.jwt.global.auth.jwt.filter.JwtFilter;
-import com.example.jwt.global.auth.jwt.JwtProvider;
+import com.example.jwt.global.auth.jwt.service.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

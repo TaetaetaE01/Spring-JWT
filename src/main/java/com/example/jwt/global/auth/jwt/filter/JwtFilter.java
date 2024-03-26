@@ -1,6 +1,6 @@
 package com.example.jwt.global.auth.jwt.filter;
 
-import com.example.jwt.global.auth.jwt.JwtProvider;
+import com.example.jwt.global.auth.jwt.service.JwtProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
