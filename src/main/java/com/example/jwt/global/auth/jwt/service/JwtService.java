@@ -20,16 +20,17 @@ import org.springframework.stereotype.Component;
 import java.util.*;
 
 
-@Component
 @Slf4j
+@Component
 @RequiredArgsConstructor
-public class JwtProvider {
+public class JwtService {
+
     @Value("${jwt.secret-key}")
     private String secretKey;
 
-    private static final String ACCESS_TOKEN_HEADER = "AUTH-KEY";
+    private static final String ACCESS_TOKEN_HEADER = "ACCESS-AUTH-KEY";
+    private static final String REFRESH_TOKEN_HEADER = "REFRESH-AUTH-KEY";
     private static final String BEARER = "BEARER";
-
 
     private final UserDetailsService userDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -51,6 +52,13 @@ public class JwtProvider {
     // 헤더에 있는 access 토큰 추출
     public Optional<String> extractAccessToken(HttpServletRequest request) {
         return Optional.ofNullable(request.getHeader(ACCESS_TOKEN_HEADER))
+                .filter(accessToken -> accessToken.startsWith(BEARER))
+                .map(accessToken -> accessToken.replace(BEARER, ""));
+    }
+
+    // 헤더에 있는 refresh 토큰 추출
+    public Optional<String> extractRefreshToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader(REFRESH_TOKEN_HEADER))
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));
     }

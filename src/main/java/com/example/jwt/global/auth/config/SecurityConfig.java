@@ -1,7 +1,7 @@
 package com.example.jwt.global.auth.config;
 
 import com.example.jwt.global.auth.jwt.filter.JwtAuthenticationFilter;
-import com.example.jwt.global.auth.jwt.service.JwtProvider;
+import com.example.jwt.global.auth.jwt.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtProvider jwtProvider;
+    private final JwtService jwtService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -35,6 +35,8 @@ public class SecurityConfig {
                                            HandlerMappingIntrospector introspector) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+
                 //http basic 인증 방식 disable
                 .httpBasic(AbstractHttpConfigurer::disable)
 
@@ -56,6 +58,7 @@ public class SecurityConfig {
                                 .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/member/login")).permitAll()
                                 .anyRequest().authenticated()) // 그 외는 접근x
 
+                // jwtFilter 후 UsernamePasswordAuthenticationFilter 인증 처리
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -63,6 +66,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtFilter() {
-        return new JwtAuthenticationFilter(jwtProvider);
+        return new JwtAuthenticationFilter(jwtService);
     }
 }
