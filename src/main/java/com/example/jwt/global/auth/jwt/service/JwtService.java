@@ -1,6 +1,7 @@
 package com.example.jwt.global.auth.jwt.service;
 
 
+import com.example.jwt.domain.member.entity.Member;
 import com.example.jwt.global.auth.jwt.dto.RefreshToken;
 import com.example.jwt.global.auth.jwt.dto.TokenDto;
 import com.example.jwt.global.auth.jwt.repository.RefreshTokenRepository;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static org.springframework.security.config.Elements.JWT;
+
 
 @Slf4j
 @Component
@@ -31,6 +34,8 @@ public class JwtService {
     private static final String ACCESS_TOKEN_HEADER = "ACCESS-AUTH-KEY";
     private static final String REFRESH_TOKEN_HEADER = "REFRESH-AUTH-KEY";
     private static final String BEARER = "BEARER";
+    private static final String ACCESS_TOKEN_TYPE = "Access";
+    private static final String REFRESH_TOKEN_TYPE = "Refresh";
 
     private final UserDetailsService userDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -43,9 +48,17 @@ public class JwtService {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
+    public String signIn(Member member) {
+        // principal (사용자명), credentials (비밀번호)
+        UsernamePasswordAuthenticationToken authentication =
+                new UsernamePasswordAuthenticationToken(member.getEmail(), member.getPassword());
+
+        return null;
+    }
+
     // 토큰 생성 order -> dto에 바로 담음
-    public TokenDto createAllToken(String email, String role) {
-        return new TokenDto(createToken(email, role, "Access"), createToken(email, role, "Refresh"));
+    public TokenDto createAllToken(Member member) {
+        return new TokenDto(createToken(member, ACCESS_TOKEN_TYPE), createToken(member, REFRESH_TOKEN_TYPE));
     }
 
 
@@ -97,7 +110,7 @@ public class JwtService {
     }
 
     // 토큰 생성 (access, refresh)
-    private String createToken(String email, String role, String type) {
+    private String createToken(Member member, String type) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
 
@@ -107,8 +120,9 @@ public class JwtService {
         long nowTime = now.getTime();
         Date validity = new Date(nowTime + expiration);
 
-        return Jwts.builder()
-                .setClaims(claims)
+
+        return JWT
+                .withClaim
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(SignatureAlgorithm.HS512, secretKey)

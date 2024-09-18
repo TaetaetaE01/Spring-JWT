@@ -1,6 +1,6 @@
 package com.example.jwt.domain.member.entity;
 
-import com.example.jwt.domain.member.entity.auth.Authority;
+import com.example.jwt.domain.member.entity.auth.Role;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,7 +26,7 @@ public class Member {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    private Authority authority;
+    private Role role;
 
     public void passwordEncode(PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(this.password);

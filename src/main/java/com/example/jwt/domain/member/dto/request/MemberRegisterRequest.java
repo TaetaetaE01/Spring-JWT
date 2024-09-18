@@ -1,7 +1,7 @@
 package com.example.jwt.domain.member.dto.request;
 
 import com.example.jwt.domain.member.entity.Member;
-import com.example.jwt.domain.member.entity.auth.Authority;
+import com.example.jwt.domain.member.entity.auth.Role;
 import lombok.Getter;
 
 @Getter
@@ -15,7 +15,7 @@ public class MemberRegisterRequest {
                 .email(email)
                 .password(password)
                 .name(name)
-                .authority(Authority.USER)
+                .role(Role.USER)
                 .build();
     }
 }

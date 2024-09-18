@@ -33,11 +33,12 @@ public class MemberService {
         if (!member.isPasswordValid(passwordEncoder, memberLoginRegister.getPassword())) {
             throw new BadCredentialsException("비밀번호가 일치하지 않습니다");
         }
-        TokenDto tokenDto = jwtService.createAllToken(member.getEmail(), member.getAuthority().name());
+
+        TokenDto tokenDto = jwtService.createAllToken(member);
         return tokenDto.getAccessToken();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 이메일 정보가 없습니다."));

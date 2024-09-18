@@ -70,8 +70,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.info("유효한 JWT 토큰이 없습니다. requestURI : {}", request.getRequestURI());
             }
         }
-
-
-
     }
 }
