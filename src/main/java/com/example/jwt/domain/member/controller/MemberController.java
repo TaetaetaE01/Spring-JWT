@@ -23,9 +23,5 @@ public class MemberController {
         return ResponseEntity.ok().body("성공적으로 회원등록이 완료되었습니다.");
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody MemberLoginRegister memberLoginRegister) {
-        memberService.login(memberLoginRegister);
-        return ResponseEntity.ok().body("토큰임둥~~~");
-    }
+
 }

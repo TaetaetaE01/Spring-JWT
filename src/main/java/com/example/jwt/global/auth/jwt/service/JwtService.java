@@ -12,7 +12,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -39,6 +41,7 @@ public class JwtService {
 
     private final UserDetailsService userDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private static final long ACCESS_TIME = 10 * 60 * 1000L; // 10분
     private static final long REFRESH_TIME = 20 * 60 * 1000L;
@@ -48,17 +51,22 @@ public class JwtService {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String signIn(Member member) {
+    public TokenDto signIn(String email, String password) {
         // principal (사용자명), credentials (비밀번호)
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(member.getEmail(), member.getPassword());
+        UsernamePasswordAuthenticationToken authenticationToken
+                = new UsernamePasswordAuthenticationToken(email, password);
 
-        return null;
+        // 2. 실제 검증 (사용자 비밀번호 체크)
+        // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
+        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+
+        return createAllToken(authentication);
     }
 
     // 토큰 생성 order -> dto에 바로 담음
-    public TokenDto createAllToken(Member member) {
-        return new TokenDto(createToken(member, ACCESS_TOKEN_TYPE), createToken(member, REFRESH_TOKEN_TYPE));
+    public TokenDto createAllToken(Authentication authentication) {
+        return new TokenDto(createToken(authentication.getName(), authentication.getAuthorities(), ACCESS_TOKEN_TYPE),
+                createToken(authentication.getName(), authentication.getAuthorities(), REFRESH_TOKEN_TYPE));
     }
 
 
@@ -110,7 +118,7 @@ public class JwtService {
     }
 
     // 토큰 생성 (access, refresh)
-    private String createToken(Member member, String type) {
+    private String createToken(String email, String authorities, String type) {
         Claims claims = Jwts.claims().setSubject(email);
         claims.put("role", role);
 
