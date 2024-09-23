@@ -11,17 +11,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/jwt/auth")
 public class AuthController {
 
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody MemberLoginRegister memberLoginRegister) {
-        authService.signIn(memberLoginRegister);
-        return ResponseEntity.ok().body("토큰임둥~~~");
+    public ResponseEntity<TokenDto> login(@RequestBody MemberLoginRegister memberLoginRegister) {
+        return ResponseEntity.ok().body(authService.signIn(memberLoginRegister));
     }
 }

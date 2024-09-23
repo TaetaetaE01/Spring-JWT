@@ -22,6 +22,4 @@ public class MemberController {
         memberService.registerMember(memberRegisterRequest);
         return ResponseEntity.ok().body("성공적으로 회원등록이 완료되었습니다.");
     }
-
-
 }

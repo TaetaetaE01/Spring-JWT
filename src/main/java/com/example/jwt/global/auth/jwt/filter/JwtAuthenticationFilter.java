@@ -18,7 +18,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    public static final String NO_CHECK_URL_LOGIN = "/api/jwt/member/login";
+    public static final String NO_CHECK_URL_LOGIN = "/api/jwt/auth/login";
     public static final String NO_CHECK_URL_SIGN_UP = "/api/jwt/member";
 
     private final JwtService jwtService;
