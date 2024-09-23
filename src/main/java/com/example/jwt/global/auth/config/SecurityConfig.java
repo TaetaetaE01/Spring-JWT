@@ -54,7 +54,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/member")).permitAll()
+                                .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/auth")).permitAll()
                                 .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/auth/login")).permitAll()
                                 .anyRequest().authenticated()) // 그 외는 접근x
 
