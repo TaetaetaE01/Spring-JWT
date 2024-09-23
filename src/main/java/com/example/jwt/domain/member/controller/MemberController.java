@@ -15,11 +15,4 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/jwt/member")
 public class MemberController {
 
-    private final MemberService memberService;
-
-    @PostMapping
-    public ResponseEntity<String> register(@RequestBody MemberRegisterRequest memberRegisterRequest) {
-        memberService.registerMember(memberRegisterRequest);
-        return ResponseEntity.ok().body("성공적으로 회원등록이 완료되었습니다.");
-    }
 }

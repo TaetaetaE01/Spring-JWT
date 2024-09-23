@@ -1,9 +1,8 @@
 package com.example.jwt.global.auth.jwt.service;
 
 
-import com.example.jwt.domain.member.entity.Member;
-import com.example.jwt.global.auth.jwt.dto.RefreshToken;
 import com.example.jwt.global.auth.jwt.dto.TokenDto;
+import com.example.jwt.global.auth.jwt.entity.RefreshToken;
 import com.example.jwt.global.auth.jwt.repository.RefreshTokenRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -26,9 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.jsonwebtoken.SignatureAlgorithm.*;
-import static org.springframework.security.config.Elements.JWT;
 
 
 @Slf4j
@@ -61,14 +56,15 @@ public class JwtService {
 
     public TokenDto signIn(String email, String password) {
         // principal (사용자명), credentials (비밀번호)
-        UsernamePasswordAuthenticationToken authenticationToken
-                = new UsernamePasswordAuthenticationToken(email, password);
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(email, password);
 
         // 2. 실제 검증 (사용자 비밀번호 체크)
         // authenticate 매서드가 실행될 때 CustomUserDetailsService 에서 만든 loadUserByUsername 메서드가 실행
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
+        TokenDto tokenDto = createAllToken(authentication);
+        saveRefreshTokenToRedis(authentication.getName(), tokenDto.getRefreshToken());
 
-        return createAllToken(authentication);
+        return tokenDto;
     }
 
     // 토큰 생성 order -> dto에 바로 담음
@@ -77,14 +73,9 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-//        List<String> authorities = authentication.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.toList());
-
         return new TokenDto(createToken(authentication.getName(), authorities, ACCESS_TOKEN_TYPE),
                 createToken(authentication.getName(), authorities, REFRESH_TOKEN_TYPE));
     }
-
 
     // 헤더에 있는 access 토큰 추출
     public Optional<String> extractAccessToken(HttpServletRequest request) {
@@ -137,7 +128,6 @@ public class JwtService {
         }
     }
 
-
     // 토큰 생성 (access, refresh)
     private String createToken(String email, String authorities, String type) {
         long expiration = type.equals("Access") ? ACCESS_TIME : REFRESH_TIME;
@@ -155,5 +145,8 @@ public class JwtService {
                 .compact();
     }
 
-
+    private void saveRefreshTokenToRedis(String email, String refreshToken) {
+        RefreshToken refreshTokenEntity = new RefreshToken(email, refreshToken);
+        refreshTokenRepository.save(refreshTokenEntity);
+    }
 }

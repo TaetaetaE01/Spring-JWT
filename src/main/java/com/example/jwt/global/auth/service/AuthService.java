@@ -1,7 +1,9 @@
 package com.example.jwt.global.auth.service;
 
 import com.example.jwt.domain.member.dto.request.MemberLoginRegister;
+import com.example.jwt.domain.member.dto.request.MemberRegisterRequest;
 import com.example.jwt.domain.member.entity.Member;
+import com.example.jwt.domain.member.repository.MemberRepository;
 import com.example.jwt.domain.member.service.MemberService;
 import com.example.jwt.global.auth.jwt.dto.TokenDto;
 import com.example.jwt.global.auth.jwt.service.JwtService;
@@ -17,11 +19,18 @@ public class AuthService {
 
     private final JwtService jwtService;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public TokenDto signIn(MemberLoginRegister memberLoginRegister) {
+    public void registerMember(MemberRegisterRequest memberRegisterRequest) {
+        Member member = memberRepository.save(memberRegisterRequest.toMemberEntity());
+        member.passwordEncode(passwordEncoder);
+    }
+
+    @Transactional
+    public TokenDto login(MemberLoginRegister memberLoginRegister) {
         Member member = memberService.findMemberByEmail(memberLoginRegister.getEmail());
 
         if (!member.isPasswordValid(passwordEncoder, memberLoginRegister.getPassword())) {

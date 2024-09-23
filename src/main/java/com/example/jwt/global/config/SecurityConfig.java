@@ -1,4 +1,4 @@
-package com.example.jwt.global.auth.config;
+package com.example.jwt.global.config;
 
 import com.example.jwt.global.auth.jwt.filter.JwtAuthenticationFilter;
 import com.example.jwt.global.auth.jwt.service.JwtService;
@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -54,7 +56,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/member")).permitAll()
+                                .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/auth")).permitAll()
                                 .requestMatchers(new MvcRequestMatcher(introspector, "/api/jwt/auth/login")).permitAll()
                                 .anyRequest().authenticated()) // 그 외는 접근x
 

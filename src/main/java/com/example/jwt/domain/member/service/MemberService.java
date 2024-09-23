@@ -20,12 +20,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void registerMember(MemberRegisterRequest memberRegisterRequest) {
-        Member member = memberRepository.save(memberRegisterRequest.toMemberEntity());
-        member.passwordEncode(passwordEncoder);
-    }
-
-    @Transactional
     public Member findMemberByEmail(String email) {
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당하는 이메일 정보가 없습니다."));
