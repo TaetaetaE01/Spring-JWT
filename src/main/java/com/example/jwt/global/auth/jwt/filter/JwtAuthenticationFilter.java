@@ -36,9 +36,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
          * 로그인 여부를 판단하지 않고 진입할 url
          * 회원가입 && LOGIN
          */
-        if (request.getRequestURI().equals(NO_CHECK_URL_LOGIN) || request.getRequestURI().equals(NO_CHECK_URL_SIGN_UP)) {
+        if(request.getRequestURI().startsWith(NO_CHECK_URL_LOGIN) || request.getRequestURI().startsWith(NO_CHECK_URL_SIGN_UP)) {
             filterChain.doFilter(request, response);
-            return; // return으로 이후 현재 필터 진행 막기 (안해주면 아래로 내려가서 계속 필터 진행시킴)
+            return;
         }
 
         /**
@@ -54,21 +54,33 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             Authentication authentication = jwtService.getAuthentication(accessToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.info("ACCESS_TOKEN 유효성 확인 후 SecurityContext에 인증 정보 저장 완료");
-        } else {
-            // Refresh Token 검증
-            String refreshToken = jwtService.extractRefreshToken(request)
-                    .filter(jwtService::validateToken)
-                    .orElse(null);
 
-            if (refreshToken != null) {
-                // Refresh Token이 유효할 경우 Access Token 재발급 및 인증 객체 저장
-                Authentication authentication = jwtService.getAuthentication(refreshToken);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-                log.info("REFRESH_TOKEN 유효성 확인 후 SecurityContext에 인증 정보 저장 완료");
-            } else {
-                // 예외 처리
-                log.info("유효한 JWT 토큰이 없습니다. requestURI : {}", request.getRequestURI());
-            }
+            // 인증 후 다음 필터/서블릿으로 넘김
+            filterChain.doFilter(request, response);
+            return;
         }
+
+        /**
+         * refreshToken header에서 추출 후 유효성 검증
+         * 아닐시 null 반환
+         */
+        String refreshToken = jwtService.extractRefreshToken(request)
+                .filter(jwtService::validateToken)
+                .orElse(null);
+
+        if (refreshToken != null) {
+            // Refresh Token이 유효할 경우 Access Token 재발급 및 인증 객체 저장
+            Authentication authentication = jwtService.getAuthentication(refreshToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info("REFRESH_TOKEN 유효성 확인 후 SecurityContext에 인증 정보 저장 완료");
+
+            // 인증 후 다음 필터/서블릿으로 넘김
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 토큰이 모두 유효하지 않은 경우 401 Unauthorized 반환
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        log.info("유효한 JWT 토큰이 없습니다. requestURI : {}", request.getRequestURI());
     }
 }

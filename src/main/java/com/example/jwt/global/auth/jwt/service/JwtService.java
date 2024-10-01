@@ -31,16 +31,15 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class JwtService {
 
-    @Value("${jwt.secret-key}")
-    private String secretKey;
-
-    private Key key;
-
     private static final String ACCESS_TOKEN_HEADER = "ACCESS-AUTH-KEY";
     private static final String REFRESH_TOKEN_HEADER = "REFRESH-AUTH-KEY";
     private static final String BEARER = "BEARER";
     private static final String ACCESS_TOKEN_TYPE = "Access";
     private static final String REFRESH_TOKEN_TYPE = "Refresh";
+
+    @Value("${jwt.secret-key}")
+    private String secretKey;
+    private Key key;
 
     private final UserDetailsService userDetailsService;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -107,26 +106,28 @@ public class JwtService {
 
     public boolean validateToken(String jwtToken) {
         try {
+            // JWT 토큰을 파싱하고, 서명 키를 사용해 서명을 검증
             Jws<Claims> claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
+                    .setSigningKey(key) // 비밀 키 설정
                     .build()
                     .parseClaimsJws(jwtToken);
+
+            // 토큰 만료 시간 검증
             return !claims.getBody().getExpiration().before(new Date());
+        } catch (ExpiredJwtException e) {
+            log.error("토큰이 만료되었습니다: {}", jwtToken, e);
+        } catch (MalformedJwtException e) {
+            log.error("잘못된 JWT 형식입니다: {}", jwtToken, e);
+        } catch (SignatureException e) {
+            log.error("서명이 올바르지 않습니다: {}", jwtToken, e);
         } catch (Exception e) {
-            return false;
+            log.error("JWT 토큰 검증 중 오류 발생: {}", jwtToken, e);
         }
+
+        // 예외 발생 시 false 반환
+        return false;
     }
 
-
-    public String getMemberEmailFromToken(String token) {
-        try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-            return claims.getBody().getSubject();
-        } catch (Exception e) {
-            log.error("Failed to extract username from token", e);
-            return null;
-        }
-    }
 
     // 토큰 생성 (access, refresh)
     private String createToken(String email, String authorities, String type) {
